@@ -43,10 +43,16 @@ int main() {
     printf("%d ",vec[i]);
   }
   printf("\n");
+/* <<<<<<< HEAD */
 
+/* #pragma omp parallel */
+/* ======= */
 #pragma omp parallel
+  {
+#pragma omp serial
+/* >>>>>>> ebc183ec04fbd943b6eda12f4665b266c3a700da */
   merge_sort(vec, 0, n-1);
-
+  }
   for (int i=0; i<n; i++) {
     printf("%d ",vec[i]);
   }

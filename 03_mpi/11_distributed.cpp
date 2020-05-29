@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
   int size, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  Body ibody[N/size], jbody[N/size];
+  Body ibody[N/size], jbody[N/size], buffer[N/size];
   srand48(rank);
   for(int i=0; i<N/size; i++) {
     ibody[i].x = jbody[i].x = drand48();
@@ -27,16 +27,26 @@ int main(int argc, char** argv) {
   MPI_Type_contiguous(5, MPI_DOUBLE, &MPI_BODY);
   MPI_Type_commit(&MPI_BODY);
   MPI_Win win;
-  MPI_Win_create(jbody, N/size*sizeof(MPI_BODY), sizeof(MPI_BODY), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
-  Body j2body[N/size];
+/* <<<<<<< HEAD */
+/*   MPI_Win_create(jbody, N/size*sizeof(MPI_BODY), sizeof(MPI_BODY), MPI_INFO_NULL, MPI_COMM_WORLD, &win); */
+/*   Body j2body[N/size]; */
+/*   for(int irank=0; irank<size; irank++) { */
+/*     for(int j=0; j<N/size; j++) j2body[j] = jbody[j]; */
+/*     MPI_Win_fence(0, win); */
+/*     /1* MPI_Put with jbody may overwrite jbody before sending it to another process. *1/ */
+/*     MPI_Put(j2body, N/size, MPI_BODY, send_to, 0, N/size, MPI_BODY, win); */
+/*     MPI_Win_fence(0, win); */
+/*     /1* MPI_Send(jbody, N/size, MPI_BODY, send_to, 0, MPI_COMM_WORLD); *1/ */
+/*     /1* MPI_Recv(jbody, N/size, MPI_BODY, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); *1/ */
+/* ======= */
+  MPI_Win_create(jbody, (N/size)*sizeof(Body), sizeof(Body), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
   for(int irank=0; irank<size; irank++) {
-    for(int j=0; j<N/size; j++) j2body[j] = jbody[j];
+    for(int i=0; i<N/size; i++)
+      buffer[i] = jbody[i];
     MPI_Win_fence(0, win);
-    /* MPI_Put with jbody may overwrite jbody before sending it to another process. */
-    MPI_Put(j2body, N/size, MPI_BODY, send_to, 0, N/size, MPI_BODY, win);
+    MPI_Put(buffer, N/size, MPI_BODY, send_to, 0, N/size, MPI_BODY, win);
     MPI_Win_fence(0, win);
-    /* MPI_Send(jbody, N/size, MPI_BODY, send_to, 0, MPI_COMM_WORLD); */
-    /* MPI_Recv(jbody, N/size, MPI_BODY, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); */
+/* >>>>>>> ebc183ec04fbd943b6eda12f4665b266c3a700da */
     for(int i=0; i<N/size; i++) {
       for(int j=0; j<N/size; j++) {
         double rx = ibody[i].x - jbody[j].x;
