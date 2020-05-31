@@ -56,8 +56,6 @@ struct launch_configuration
     // Data members
     //
 
-    /// cudaError_t resulting from grid launch
-    cudaError_t result;
 
     /// Extent of a thread block's partition along the GEMM K-axis
     int split_k;
@@ -68,41 +66,6 @@ struct launch_configuration
     /// Thread block extents in threads
     dim3 block;
 
-    //
-    // Methods
-    //
-
-    /// Constructor
-    launch_configuration():
-        result(cudaSuccess),
-        split_k(0),
-        grid(0, 0, 0),
-        block(0, 0, 0) {
-
-    }
-
-    /// Conversion from cudaError_t
-    launch_configuration(cudaError_t result):
-        result(result),
-        split_k(1),
-        grid(0, 0, 0),
-        block(0, 0, 0) {
-
-    }
-
-    /// Launch configuration for Cutlass kernels
-    launch_configuration(
-        cudaError_t result,
-        int split_k,
-        dim3 grid,
-        dim3 block
-    ):
-        result(result),
-        split_k(split_k),
-        grid(grid),
-        block(block) {
-
-    }
 };
 
 
@@ -160,7 +123,6 @@ launch_configuration dispatch(
                           8,
                           config.block,
                           config.grid);
-  config.split_k = k_split.split_k;
   gemm::kernel<epilogue_op_t>
     <<< config.grid,
     config.block,

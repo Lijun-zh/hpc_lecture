@@ -69,26 +69,6 @@ namespace gemm {
         }
 
 
-        /// Epilogue operator
-        inline __device__ __host__
-        output_t operator()(
-            accum_t accumulator,
-            size_t idx) const
-        {
-            return output_t(alpha * scalar_t(accumulator));
-        }
-
-        /**
-         * Configure epilogue as to whether the thread block is a secondary
-         * accumulator in an inter-block k-splitting scheme
-         */
-        inline __device__
-        void set_secondary_accumulator()
-        {
-            beta = scalar_t(1);
-        }
-
-
         /// Return whether the beta-scaled addend needs initialization
         inline __device__
         bool must_init_addend()

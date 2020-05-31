@@ -218,15 +218,6 @@ struct block_task
 
 
     //-------------------------------------------------------------------------
-    // Assert assumptions
-    //-------------------------------------------------------------------------
-
-    // Ensure we have at least two unrolled innermost loop iterations (one to prefetch
-    // the next global tile and then one to prefetch the first strip of it from shared)
-    static_assert ((BlockDpVectorsK >= 2), "BlockDpVectorsK must be >= 2.");
-
-
-    //-------------------------------------------------------------------------
     // Members
     //-------------------------------------------------------------------------
 
@@ -411,15 +402,6 @@ struct block_task
     __forceinline__ __device__
     void epilogue()
     {
-        // Wait for predecessor thread block(s) to produce block-wide tile of
-        // exclsuive partial-sums
-        k_split.wait();
-
-        // Configure epilogue as to whether the thread block is a secondary
-        // accumulator in an inter-block k-splitting scheme
-        if (k_split.is_secondary_accumulator())
-            epilogue_op.set_secondary_accumulator();
-
         // Whether the addend from C needs loading
         bool must_init_addend = epilogue_op.must_init_addend();
 
@@ -449,11 +431,6 @@ struct block_task
                     if ((grid_raster.block_item_coords.x + thread_item_coords_tile_x) < dim_n &&
                         (grid_raster.block_item_coords.y + thread_item_coords_tile_y + i) < dim_m)
                     {
-                        if (must_init_addend)
-                        {
-                            ldg_cg(c_slice, c_ptr);
-                        }
-
                         c_slice = epilogue_op(accumulator.get(x, y + i), c_slice, c_idx + i);
 
                         stg_cg(c_ptr, c_slice);
@@ -461,10 +438,6 @@ struct block_task
                 }
             }
         }
-
-        // Signal k-split successor thread_block that we have produced our block-wide
-        // tile of inclusive partial-sums
-        k_split.signal();
     }
 
 
