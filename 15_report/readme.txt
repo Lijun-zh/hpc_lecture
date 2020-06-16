@@ -13,22 +13,22 @@ Here are the results on my local machine which has an E3-1230v5 and a GTX 1660S.
 
 $ python3 1_cavity.py
 Reaching convergence after 6605 steps.
-Elapsed time is 9.193 s.
+Elapsed time is 9.349 s.
 Sum(|u|)= 219.63547247647466
 Sum(|v|)= 129.10805866433103
 Sum(|p|)= 175.6803115004912
 Plot is saved as python_result.png
 $ g++ 2_ported.cpp; ./a.out
 Reaching convergence after 6605 steps.
-Elapsed time is 22.491514 s.
+Elapsed time is 21.692936 s.
 Sum(|u|)=219.635472
 Sum(|v|)=129.108059
 Sum(|p|)=175.680312
 $ nvcc 3_cuda.cu; ./a.out
-Reaching convergence after 6607 steps.
-Elapsed time is 4.579553 s.
-Sum(|u|)=217.635254
-Sum(|v|)=129.107635
-Sum(|p|)=175.680054
+Reaching convergence after 6595 steps.
+Elapsed time is 4.170875 s.
+Sum(|u|)=219.635117
+Sum(|v|)=129.107422
+Sum(|p|)=175.680099
 $ python3 4_cuda_plot.py
 Plot is saved as cuda_result.png

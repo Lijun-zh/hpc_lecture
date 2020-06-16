@@ -81,9 +81,9 @@ __global__ void calc_uv(int nx, int ny,
 __global__ void calc_uv_bc(int nx, int ny, float *u, float *v) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if(i < nx*ny) { 
-    if(i%nx == nx-1) u[i] = 0;
+    if((i%nx == nx-1) && (i < nx*(ny-1))) u[i] = 0;
     else if(i < nx) u[i] = 0;
-    else if(i%nx == 0) u[i] = 0;
+    else if((i%nx == 0) && (i < nx*(ny-1))) u[i] = 0;
     else if(i >= nx*(ny-1)) u[i] = 1;
   } else {
     i -= nx*ny;
