@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <chrono>
+#include <fstream>
 using namespace std;
 
 __global__ void build_up_b(int nx, int ny,
@@ -196,6 +197,19 @@ int main() {
   printf("Sum(|u|)=%f\n", ures);
   printf("Sum(|v|)=%f\n", vres);
   printf("Sum(|p|)=%f\n", pres);
+
+  ofstream f ("cuda_result");
+  if (f.is_open())
+  {
+    f << ny << " ";
+    f << nx << "\n";
+    for(int i=0; i<ny*nx; i++) f << u[i] << " ";
+    f << "\n";
+    for(int i=0; i<ny*nx; i++) f << v[i] << " ";
+    f << "\n";
+    for(int i=0; i<ny*nx; i++) f << p[i] << " ";
+    f.close();
+  }
 
   cudaFree(u);
   cudaFree(v);
